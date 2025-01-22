@@ -11,6 +11,7 @@ jobs:
         run: docker build -t yannchav/node-js-sample:${{ github.sha }} .
       - name: Run docker imgae
         run: docker run -d -p 8080:8080 yannchav/node-js-sample:${{ github.sha }}
+      - run: apt-get install curl
       - name: Test home response
         run: |
           RESPONSE=$(curl -s http://localhost:8080)
