@@ -5,7 +5,7 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/jobs-steps/#jobs-overview & https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  build:
+  build-test-and-run:
     machine:
       image: ubuntu-2404:2024.11.1
 
@@ -14,38 +14,38 @@ jobs:
       - checkout
 
       - build:
-          name: Build Docker Image
-          command: |
-            docker build -t yannchav/node-js-sample:${CIRCLE_SHA1} .
+        name: Build Docker Image
+        command: |
+          docker build -t yannchav/node-js-sample:${CIRCLE_SHA1} .
 
       - run:
-          name: Run Docker Image
-          command: |
-            docker run -p 8080:8080 yannchav/node-js-sample:${CIRCLE_SHA1} .
+        name: Run Docker Image
+        command: |
+          docker run -p 8080:8080 yannchav/node-js-sample:${CIRCLE_SHA1} .
 
       - test-home:
-          name: Verify home response
-          command: |
-            RESPONSE=$(curl -s http://localhost:8080)
-            
-            if echo "$RESPONSE" | grep -q "<h1>BackSpace Academy</h1>"; then
-              echo "Verification passed: Home contains title 'Backspace Academy'."
-            else
-              echo "Verification failed: Home does not contain 'Backspace Academy'."
-              exit 1
-            fi
+        name: Verify home response
+        command: |
+          RESPONSE=$(curl -s http://localhost:8080)
+          
+          if echo "$RESPONSE" | grep -q "<h1>BackSpace Academy</h1>"; then
+            echo "Verification passed: Home contains title 'Backspace Academy'."
+          else
+            echo "Verification failed: Home does not contain 'Backspace Academy'."
+            exit 1
+          fi
 
       - test-users:
-          name: Verify /users response
-          command: |
-            RESPONSE=$(curl -s http://localhost:8080/users)
-            
-            if echo "$RESPONSE" | grep -q "respond with a resource"; then
-              echo "Verification passed: The response contains 'respond with a resource'."
-            else
-              echo "Verification failed: The response does not contain 'respond with a resource'."
-              exit 1
-            fi
+        name: Verify /users response
+        command: |
+          RESPONSE=$(curl -s http://localhost:8080/users)
+          
+          if echo "$RESPONSE" | grep -q "respond with a resource"; then
+            echo "Verification passed: The response contains 'respond with a resource'."
+          else
+            echo "Verification failed: The response does not contain 'respond with a resource'."
+            exit 1
+          fi
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
@@ -53,4 +53,4 @@ workflows:
   build-test-and-push: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
     jobs:
-      - build
+      - build-test-and-run
