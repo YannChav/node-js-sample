@@ -13,7 +13,7 @@ jobs:
       # Checkout the code as the first step.
       - checkout
 
-      - build:
+      - run:
         name: Build Docker Image
         command: |
           docker build -t yannchav/node-js-sample:${CIRCLE_SHA1} .
@@ -23,8 +23,8 @@ jobs:
         command: |
           docker run -p 8080:8080 yannchav/node-js-sample:${CIRCLE_SHA1} .
 
-      - test-home:
-        name: Verify home response
+      - run:
+        name: Test home response
         command: |
           RESPONSE=$(curl -s http://localhost:8080)
           
@@ -35,8 +35,8 @@ jobs:
             exit 1
           fi
 
-      - test-users:
-        name: Verify /users response
+      - run:
+        name: Test /users response
         command: |
           RESPONSE=$(curl -s http://localhost:8080/users)
           
