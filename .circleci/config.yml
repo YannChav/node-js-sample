@@ -43,6 +43,13 @@ jobs:
               exit 1
             fi
 
+      - run:
+          name: Push Docker Images
+          command: |
+            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker push yannchav/node-js-sample:${CIRCLE_SHA1}
+            docker push yannchav/node-js-sample:latest
+
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
 workflows:
