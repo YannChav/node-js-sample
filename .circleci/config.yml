@@ -1,0 +1,55 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/configuration-reference
+version: 2.1
+
+# Define executors
+executors:
+  ubuntu-executor:
+    machine:
+      - image: ubuntu-2404:2024.11.1
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/jobs-steps/#jobs-overview & https://circleci.com/docs/configuration-reference/#jobs
+jobs:
+  build:
+    executor: ubuntu-executor
+
+    steps:
+      # Checkout the code as the first step.
+      - checkout
+
+      - set-up-docker-repository:
+          name: Set up Docker's apt repository
+          commande: |
+            apt-get update && \
+            apt-get install ca-certificates curl && \
+            install -m 0755 -d /etc/apt/keyrings && \
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc && \
+            chmod a+r /etc/apt/keyrings/docker.asc && \
+            echo \
+              "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+              $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+              sudo tee /etc/apt/sources.list.d/docker.list > /dev/null && \
+            apt-get update
+
+      - install-docker:
+          name: Install Docker
+          commande: |
+            sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+      # Set up Docker and authenticate with DockerHub
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: Build Docker Image
+          command: |
+            docker build -t yannchav/node-js-sample:${CIRCLE_SHA1} .
+
+# Orchestrate jobs using workflows
+# See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
+workflows:
+  build-test-and-push: # This is the name of the workflow, feel free to change it to better match your workflow.
+    # Inside the workflow, you define the jobs you want to run.
+    jobs:
+      - build
