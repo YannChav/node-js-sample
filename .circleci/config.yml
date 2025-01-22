@@ -12,11 +12,10 @@ jobs:
     steps:
       # Checkout the code as the first step.
       - checkout
-
       - run:
-        name: Build Docker Image
-        command: |
-          docker build -t yannchav/node-js-sample:${CIRCLE_SHA1} .
+          name: Build Docker Image
+          command: |
+            docker build -t yannchav/node-js-sample:${CIRCLE_SHA1} .
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
